@@ -1,0 +1,2 @@
+INSERT INTO public."user" ("name",username,"password",create_date,update_date,remark,user_role_id,email,tel) VALUES
+	 ('army','armneogs','$2a$10$GzpxWOvrugU0VBIxHlkT0e0nUyvT/O4XDn3ZUkyhNp6KyunXcE1l2','2021-01-19 17:29:09','2021-01-19 17:29:09',NULL,3,'armneogs@gmail.com',NULL);
