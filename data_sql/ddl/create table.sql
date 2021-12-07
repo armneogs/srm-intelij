@@ -439,13 +439,13 @@ CREATE TABLE public."system" (
 );
 
 
--- public."token" definition
+-- public."userToken" definition
 
 -- Drop table
 
--- DROP TABLE public."token";
+-- DROP TABLE public."userToken";
 
-CREATE TABLE public."token" (
+CREATE TABLE public."userToken" (
 	id bigserial NOT NULL,
 	user_id int8 NOT NULL,
 	jwt_hash varchar NOT NULL,
@@ -455,4 +455,4 @@ CREATE TABLE public."token" (
 	CONSTRAINT token_pk PRIMARY KEY (id),
 	CONSTRAINT token_fk FOREIGN KEY (user_id) REFERENCES public."user"(id)
 );
-CREATE INDEX token_user_id_idx ON public.token USING btree (user_id);
+CREATE INDEX token_user_id_idx ON public.user_token USING btree (user_id);

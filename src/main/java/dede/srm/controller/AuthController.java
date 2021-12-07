@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import dede.srm.models.UserToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +31,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import dede.srm.models.enums.ERole;
 import dede.srm.models.UserRole;
 import dede.srm.models.Log;
-import dede.srm.models.Token;
 import dede.srm.models.User;
 import dede.srm.payload.request.LoginRequest;
 import dede.srm.payload.request.SignupRequest;
@@ -99,9 +99,9 @@ public class AuthController {
 		claims.put("roles", roles);
 		String jwt = jwtUtils.generateJwtToken(authentication, nowDate, claims);
 
-		List<Token> existTokens = tokenRepo.findByUserId(userOpt.get().getId());
+		List<UserToken> existUserTokens = tokenRepo.findByUserId(userOpt.get().getId());
 
-		tokenRepo.deleteAll(existTokens);
+		tokenRepo.deleteAll(existUserTokens);
 
 		Log log = new Log();
 		log.setLogType("1");
@@ -111,14 +111,14 @@ public class AuthController {
 
 		logRepo.save(log);
 
-		Token token = new Token();
+		UserToken userToken = new UserToken();
 
-		token.setJwtHash(jwt);
-		token.setUser(userOpt.get());
-		token.setCreateDate(nowDate);
-		token.setExpireDate(new Date(nowDate.getTime() + jwtUtils.getJwtExpirationMs()));
+		userToken.setJwtHash(jwt);
+		userToken.setUser(userOpt.get());
+		userToken.setCreateDate(nowDate);
+		userToken.setExpireDate(new Date(nowDate.getTime() + jwtUtils.getJwtExpirationMs()));
 
-		tokenRepo.save(token);
+		tokenRepo.save(userToken);
 
 		return ResponseEntity.ok(new JwtResponse(jwt));
 	}
@@ -135,13 +135,13 @@ public class AuthController {
 		}
 
 		String username = jwtUtils.getUserNameFromJwtToken(jwt);
-		List<Token> tokens = tokenRepo.findByUserNameAndJWT(username, jwt);
-		if (tokens == null || tokens.isEmpty()) {
+		List<UserToken> userTokens = tokenRepo.findByUserNameAndJWT(username, jwt);
+		if (userTokens == null || userTokens.isEmpty()) {
 			return ResponseEntity.ok(new MessageResponse("User's already exited."));
 		}
 
-		for (Token existToken : tokens) {
-			tokenRepo.delete(existToken);
+		for (UserToken existUserToken : userTokens) {
+			tokenRepo.delete(existUserToken);
 		}
 
 		Optional<User> userOpt = userRepository.findByUsername(username);
@@ -159,10 +159,10 @@ public class AuthController {
 	}
 
 	private void deleteAllValidToken(Long userId) {
-		List<Token> tokens = tokenRepo.findByUserId(userId);
-		if (tokens != null && !tokens.isEmpty()) {
-			for (Token existToken : tokens) {
-				tokenRepo.delete(existToken);
+		List<UserToken> userTokens = tokenRepo.findByUserId(userId);
+		if (userTokens != null && !userTokens.isEmpty()) {
+			for (UserToken existUserToken : userTokens) {
+				tokenRepo.delete(existUserToken);
 			}
 		}
 	}
